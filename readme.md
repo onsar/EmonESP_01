@@ -1,4 +1,5 @@
-
+# EmonESP Changes
+- Objective: include a class in the EmonESP software to read its variables
 # EmonESP
 
 [![Build Status](https://travis-ci.org/openenergymonitor/EmonESP.svg?branch=master)](https://travis-ci.org/openenergymonitor/EmonESP)

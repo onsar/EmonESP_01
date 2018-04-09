@@ -32,6 +32,9 @@
 #include "emoncms.h"
 #include "mqtt.h"
 
+uint32_t t_last_tx=0;
+uint32_t current_time= 0;
+
 // -------------------------------------------------------------------
 // SETUP
 // -------------------------------------------------------------------
@@ -68,11 +71,24 @@ void setup() {
 // -------------------------------------------------------------------
 // LOOP
 // -------------------------------------------------------------------
+
+
 void loop()
 {
+
+  current_time= millis();
+
   ota_loop();
   web_server_loop();
   wifi_loop();
+
+  if ((current_time - t_last_tx) > 10000)
+  {
+    String input_t = "hola:55.55";
+    t_last_tx = current_time;
+    Serial.println(current_time);
+    emoncms_publish(input_t);
+  }
 
   String input = "";
   boolean gotInput = input_get(input);
@@ -91,4 +107,3 @@ void loop()
     }
   }
 } // end loop
-
