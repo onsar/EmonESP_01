@@ -32,10 +32,13 @@
 #include "emoncms.h"
 #include "mqtt.h"
 #include "lectura.h"
+#include "power_measurement.h"
 
 uint32_t t_last_tx=0;
 uint32_t current_time= 0;
 Lectura lectura("inten","2.00");
+Power_measurement Prometeo;
+int8_t measurement_status;
 
 // -------------------------------------------------------------------
 // SETUP
@@ -68,6 +71,19 @@ void setup() {
   DEBUG.println("Server started");
 
   delay(100);
+
+
+  Serial.println();
+  Serial.println();
+
+  Prometeo.config(1.125, 0.330, 0.32, 0.32, 0.03322, 0.03322, 0.03322);
+  Serial.println("Medición en...3");
+  delay(1000);
+  Serial.println("...2");
+  delay(1000);
+  Serial.println("...1");
+  delay(1000);
+
 } // end setup
 
 // -------------------------------------------------------------------
@@ -95,7 +111,27 @@ void loop()
     t_last_tx = current_time;
     Serial.println(current_time);
     emoncms_publish(input_i);
+
+
+
+    Serial.println("=========================================================");
+    measurement_status = Prometeo.calcVI(20,2000); 	// Realiza la medida. (Nº de pasos por cero, timeout para sincronizar el paso por 0)
+    if (measurement_status == 0)
+    {
+  		Prometeo.serialprint(SOCKET1);    // Muestra los datos (Vrms, Irms, potencia activa, potencia aparente, factor de potencia)
+  		Prometeo.serialprint(SOCKET2);    // Muestra los datos (Vrms, Irms, potencia activa, potencia aparente, factor de potencia)
+  		Prometeo.serialprint(SOCKET3);    // Muestra los datos (Vrms, Irms, potencia activa, potencia aparente, factor de potencia
+    }
+  	else
+  	{
+  		Serial.print("Valor devuelto: ");
+  		Serial.println(measurement_status, DEC);
+  	}
+
+
   }
+
+
 
   String input = "";
   boolean gotInput = input_get(input);
