@@ -31,9 +31,11 @@
 #include "input.h"
 #include "emoncms.h"
 #include "mqtt.h"
+#include "lectura.h"
 
 uint32_t t_last_tx=0;
 uint32_t current_time= 0;
+Lectura lectura("inten","2.00");
 
 // -------------------------------------------------------------------
 // SETUP
@@ -82,12 +84,17 @@ void loop()
   web_server_loop();
   wifi_loop();
 
+
+
+
   if ((current_time - t_last_tx) > 10000)
   {
+    String input_i = lectura.dame_name() + ":" + lectura.dame_value();
+    Serial.println(input_i);
     String input_t = "hola:55.55";
     t_last_tx = current_time;
     Serial.println(current_time);
-    emoncms_publish(input_t);
+    emoncms_publish(input_i);
   }
 
   String input = "";
