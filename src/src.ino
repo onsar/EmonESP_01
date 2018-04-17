@@ -105,9 +105,12 @@ void loop()
 
   if ((current_time - t_last_tx) > 10000)
   {
-    String input_i = lectura.dame_name() + ":" + lectura.dame_value();
-    Serial.println(input_i);
-    String input_t = "hola:55.55";
+    // String input_i = lectura.dame_name() + ":" + lectura.dame_value();
+    String string_real_power =  String(Prometeo.realPower[0], 2);
+    String input_i = "power_0:" + String(Prometeo.realPower[0], 2)
+                  + ",power_1:" + String(Prometeo.realPower[1], 2)
+                  + ",power_2:" + String(Prometeo.realPower[2], 2)
+                  ;
     t_last_tx = current_time;
     Serial.println(current_time);
     emoncms_publish(input_i);
@@ -121,6 +124,13 @@ void loop()
   		Prometeo.serialprint(SOCKET1);    // Muestra los datos (Vrms, Irms, potencia activa, potencia aparente, factor de potencia)
   		Prometeo.serialprint(SOCKET2);    // Muestra los datos (Vrms, Irms, potencia activa, potencia aparente, factor de potencia)
   		Prometeo.serialprint(SOCKET3);    // Muestra los datos (Vrms, Irms, potencia activa, potencia aparente, factor de potencia
+      Serial.println("prometeo_irms_0");
+      Serial.println(Prometeo.Irms[0]);
+      Serial.println("prometeo_real_power_0");
+      Serial.println(Prometeo.realPower[0]);
+      Serial.println("prometeo_aparent_power_0");
+      Serial.println(Prometeo.apparentPower[0]);
+
     }
   	else
   	{
