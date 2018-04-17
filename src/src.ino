@@ -2,14 +2,15 @@
  * -------------------------------------------------------------------
  * EmonESP Serial to Emoncms gateway
  * -------------------------------------------------------------------
+ * Adaptaction of Oscar Puyal Prometeo project
  * Adaptation of Chris Howells OpenEVSE ESP Wifi
  * by Trystan Lea, Glyn Hudson, OpenEnergyMonitor
  * All adaptation GNU General Public License as below.
  *
  * -------------------------------------------------------------------
  *
- * This file is part of OpenEnergyMonitor.org project.
- * EmonESP is free software; you can redistribute it and/or modify
+ * This file is part of Prometeo project.
+ * EmonESP_01 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
@@ -31,12 +32,10 @@
 #include "input.h"
 #include "emoncms.h"
 #include "mqtt.h"
-#include "lectura.h"
 #include "power_measurement.h"
 
 uint32_t t_last_tx=0;
 uint32_t current_time= 0;
-Lectura lectura("inten","2.00");
 Power_measurement Prometeo;
 int8_t measurement_status;
 
@@ -101,35 +100,17 @@ void loop()
   wifi_loop();
 
 
-
-
-  if ((current_time - t_last_tx) > 10000)
+  if ((current_time - t_last_tx) > 20000)
   {
-    // String input_i = lectura.dame_name() + ":" + lectura.dame_value();
-    String string_real_power =  String(Prometeo.realPower[0], 2);
-    String input_i = "power_0:" + String(Prometeo.realPower[0], 2)
-                  + ",power_1:" + String(Prometeo.realPower[1], 2)
-                  + ",power_2:" + String(Prometeo.realPower[2], 2)
-                  ;
-    t_last_tx = current_time;
-    Serial.println(current_time);
-    emoncms_publish(input_i);
-
-
-
     Serial.println("=========================================================");
+    Serial.println(current_time);
+    t_last_tx = current_time;
     measurement_status = Prometeo.calcVI(20,2000); 	// Realiza la medida. (Nº de pasos por cero, timeout para sincronizar el paso por 0)
     if (measurement_status == 0)
     {
   		Prometeo.serialprint(SOCKET1);    // Muestra los datos (Vrms, Irms, potencia activa, potencia aparente, factor de potencia)
   		Prometeo.serialprint(SOCKET2);    // Muestra los datos (Vrms, Irms, potencia activa, potencia aparente, factor de potencia)
   		Prometeo.serialprint(SOCKET3);    // Muestra los datos (Vrms, Irms, potencia activa, potencia aparente, factor de potencia
-      Serial.println("prometeo_irms_0");
-      Serial.println(Prometeo.Irms[0]);
-      Serial.println("prometeo_real_power_0");
-      Serial.println(Prometeo.realPower[0]);
-      Serial.println("prometeo_aparent_power_0");
-      Serial.println(Prometeo.apparentPower[0]);
 
     }
   	else
@@ -138,10 +119,13 @@ void loop()
   		Serial.println(measurement_status, DEC);
   	}
 
+    String input_i = "power_0:" + String(Prometeo.apparentPower[0], 2)
+                  + ",power_1:" + String(Prometeo.apparentPower[1], 2)
+                  + ",power_2:" + String(Prometeo.apparentPower[2], 2)
+                  ;
+    emoncms_publish(input_i);
 
   }
-
-
 
   String input = "";
   boolean gotInput = input_get(input);
